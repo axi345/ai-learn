@@ -4,9 +4,9 @@ from setuptools import setup
 PACKAGE = "ailearn"
 NAME = "ailearn"
 DESCRIPTION = "A lightweight package for artificial intelligence"
-AUTHOR = "ZHAO Xingyu"
+AUTHOR = "ZHAO Xingyu; AN Yuexuan"
 AUTHOR_EMAIL = "757008724@qq.com"
-URL = "https://gist.github.com/axi345/6c3e2f4042b8be4c46cddc4ba354859e"
+URL = "http://github.com/axi345/ailearn"
 VERSION = __import__(PACKAGE).__version__
 
 setup(

@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+# 智能算法的若干不同的评价函数
 import numpy as np
 
 
+# Ackley函数
 class Ackley:
     def __init__(self):
-        self.x_min = -5
-        self.x_max = 5
+        self.min = -5
+        self.max = 5
 
     def func(self, *x):
         x = np.array(x)
@@ -15,10 +17,11 @@ class Ackley:
         return -result
 
 
+# Griewank函数
 class Griewank:
     def __init__(self):
-        self.x_min = -600
-        self.x_max = 600
+        self.min = -600
+        self.max = 600
 
     def func(self, *x):
         x = np.array(x)
@@ -30,10 +33,11 @@ class Griewank:
         return -result
 
 
+# Rastrigin函数
 class Rastrigin:
     def __init__(self):
-        self.x_min = -5.12
-        self.x_max = 5.12
+        self.min = -5.12
+        self.max = 5.12
 
     def func(self, *x):
         x = np.array(x)
@@ -42,20 +46,22 @@ class Rastrigin:
         return -result
 
 
+# Rosenbrock函数
 class Rosenbrock:
     def __init__(self):
-        self.x_min = -100
-        self.x_max = 100
+        self.min = -100
+        self.max = 100
 
     def func(self, x1, x2):
         result = np.square(1 - x1) + 100 * np.square(x2 - np.square(x1))
         return -result
 
 
+# Schwefel函数
 class Schwefel:
     def __init__(self):
-        self.x_min = 0
-        self.x_max = 500
+        self.min = 0
+        self.max = 500
 
     def func(self, *x):
         x = np.array(x)

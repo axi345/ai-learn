@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+# 若干群智能算法的Python实现
 import numpy as np
 
 
+# 粒子群算法
 class PSO:
     def __init__(self, func=None, param_len=1, size=5, w=0.9, c1=2., c2=2., x_min=-10., x_max=10., v_min=-0.5,
                  v_max=0.5, r1=None, r2=None):
@@ -89,6 +91,7 @@ class PSO:
         return self.best_all_x
 
 
+# 人工鱼群算法
 class AFSA:
     def __init__(self, func=None, param_len=1, size=5, x_min=-10., x_max=10., visual=1., step=0.5, delta=1,
                  try_number=5):
@@ -180,6 +183,81 @@ class AFSA:
                     self.x[i] += self.visual * np.random.uniform(-1, 1)
                 self.x[i] = np.clip(self.x[i], self.x_min, self.x_max)
                 self.score[i] = self.func(*self.x[i])
+                # 更新局部最优值、局部最优位置
+                if self.score[i] > self.best_all_score:
+                    self.best_all_score = self.score[i]
+                    self.best_all_x = self.x[i].copy()
+            print('已完成第%i次寻找,最优参数值为' % (_ + 1), self.best_all_x, '目前最优适合度为%.4f' % self.best_all_score)
+        return self.best_all_x
+
+
+# 萤火虫算法
+class FA:
+    def __init__(self, func=None, param_len=1, size=5, x_min=-10., x_max=10., beta=2, alpha=0.5, gamma=0.9):
+        self.func = func  # 计算适应性系数的方法
+        self.param_len = param_len  # 参数个数
+        self.size = size  # 有多少萤火虫
+        # 最小位移
+        if type(x_min) != list:
+            self.x_min = [x_min] * self.param_len
+        else:
+            assert len(x_min) == self.param_len
+            self.x_min = x_min
+        # 最大位移
+        if type(x_max) != list:
+            self.x_max = [x_max] * self.param_len
+        else:
+            assert len(x_max) == self.param_len
+            self.x_max = x_max
+        self.alpha = alpha  # 步长
+        self.beta = beta  # 最大吸引度
+        self.gamma = gamma  # 光强吸收系数
+        self.x = None  # 位移
+        self.score = None  # 每个萤火虫的分数
+        self.best_all_x = None  # 全局最优位置
+        self.best_all_score = None  # 全局最优分数
+        self._init_fit()
+
+    def _init_fit(self):
+        self.x = np.zeros([self.size, self.param_len])  # 形状为[萤火虫的个数,参数个数]
+        self.score = np.zeros(self.size)
+        for i in range(self.size):
+            for j in range(self.param_len):
+                self.x[i][j] = np.random.uniform(self.x_min[j], self.x_max[j])
+            self.score[i] = self.func(*self.x[i])
+        self.best_all_score = np.max(self.score)  # 全局最优分数
+        self.best_all_x = self.x[np.argmax(self.score)]  # 全局最优位置
+
+    def solve(self, epoch=5):
+        for _ in range(epoch):  # 一共迭代_次
+            # 计算距离
+            distance = np.zeros([self.size, self.size])
+            for i in range(self.size):
+                for j in range(self.size):
+                    distance[i][j] = np.sqrt(np.sum(np.square(self.x[i] - self.x[j])))
+            for i in range(self.size):  # 对于第i个萤火虫
+                # 对于最亮的萤火虫，做随机运动
+                if np.argmax(self.score) == i:
+                    self.x[i] += self.alpha * np.random.uniform(-0.5, 0.5)
+                    self.x[i] = np.clip(self.x[i], self.x_min, self.x_max)
+                    self.score[i] = self.func(*self.x[i])
+                    # 更新局部最优值、局部最优位置
+                    if self.score[i] > self.best_all_score:
+                        self.best_all_score = self.score[i]
+                        self.best_all_x = self.x[i].copy()
+                    continue
+                lightness = np.zeros(self.size)
+                # 查找对自己相对亮度最大的萤火虫
+                for j in range(self.size):
+                    if j == i:
+                        lightness[j] = -np.inf
+                    lightness[j] = self.score[j] * np.exp(-self.gamma * distance[i][j])
+                idx = np.argmax(lightness)
+                # 更新萤火虫的位置
+                self.x[i] += self.beta * np.exp(-self.gamma * np.square(distance[i][idx])) * (
+                        self.x[idx] - self.x[i]) + self.alpha * np.random.uniform(-0.5, 0.5)
+                self.score[i] = self.func(*self.x[i])
+                self.x[i] = np.clip(self.x[i], self.x_min, self.x_max)
                 # 更新局部最优值、局部最优位置
                 if self.score[i] > self.best_all_score:
                     self.best_all_score = self.score[i]
