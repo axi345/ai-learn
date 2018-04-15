@@ -1,0 +1,10 @@
+README.rst
+setup.py
+ailearn/Evaluation.py
+ailearn/Swarm.py
+ailearn/__init__.py
+ailearn.egg-info/PKG-INFO
+ailearn.egg-info/SOURCES.txt
+ailearn.egg-info/dependency_links.txt
+ailearn.egg-info/not-zip-safe
+ailearn.egg-info/top_level.txt

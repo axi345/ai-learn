@@ -1,0 +1,15 @@
+Metadata-Version: 1.1
+Name: ailearn
+Version: 0.1.3
+Summary: A lightweight package for artificial intelligence
+Home-page: https://gist.github.com/axi345/6c3e2f4042b8be4c46cddc4ba354859e
+Author: ZHAO Xingyu
+Author-email: 757008724@qq.com
+License: BSD
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
