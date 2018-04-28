@@ -54,7 +54,7 @@ class ES:
         self.best_all_x = np.zeros(self.param_len)  # 全局最优位置
         self.best_all_score = -np.inf  # 全局最优分数
 
-    def solve(self, epoch=5):
+    def solve(self, epoch=50, verbose=False):
         for _ in range(epoch):  # 一共迭代_次
             self.score = np.zeros(self.size)
             # 计算适应度
@@ -80,5 +80,6 @@ class ES:
                 x[i] = np.clip(np.random.normal(mean, v[i]), self.x_min, self.x_max)
             self.x = x.copy()
             self.v = v.copy()
-            print('已完成第%i次寻找,最优参数值为' % (_ + 1), self.best_all_x, '目前最优适合度为%.4f' % self.best_all_score)
+            if verbose:
+                print('已完成第%i次寻找,最优参数值为' % (_ + 1), self.best_all_x, '目前最优适合度为%.4f' % self.best_all_score)
         return self.best_all_x

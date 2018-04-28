@@ -73,7 +73,7 @@ class PSO:
         self.best_each_x = self.x.copy()  # 局部最优位置
         self.best_each_score = np.full(self.size, -np.inf)  # 局部最优分数
 
-    def solve(self, epoch=5):
+    def solve(self, epoch=50, verbose=False):
         r1 = self.r1
         r2 = self.r2
         for _ in range(epoch):  # 一共迭代_次
@@ -88,7 +88,7 @@ class PSO:
                 # 更新局部最优值、局部最优位置
                 if fitness > self.best_each_score[i]:
                     self.best_each_score[i] = fitness
-                    self.best_each_x[i] = self.x[i]
+                    self.best_each_x[i] = self.x[i].copy()
                 if fitness > self.best_all_score:
                     self.best_all_score = fitness
                     self.best_all_x = self.x[i].copy()
@@ -101,7 +101,10 @@ class PSO:
                     self.v[i][j] = np.clip(self.v[i][j], self.v_min[j], self.v_max[j])
                     self.x[i][j] = self.x[i][j] + self.v[i][j]
                     self.x[i][j] = np.clip(self.x[i][j], self.x_min[j], self.x_max[j])
-            print('已完成第%i次寻找,最优参数值为' % (_ + 1), self.best_all_x, '目前最优适合度为%.4f' % self.best_all_score)
+            if verbose:
+                # print('已完成第%i次寻找,最优参数值为' % (_ + 1), self.best_all_x, '目前最优适合度为%.4f' % self.best_all_score)
+                print('Number of iterations: %i. The optimal parameters:' % (_ + 1), self.best_all_x,
+                      'Best fitness: %.4f' % self.best_all_score)
         return self.best_all_x
 
 
@@ -111,7 +114,7 @@ class AFSA:
                  try_number=5):
         self.func = func  # 计算适应性系数的方法
         self.param_len = param_len  # 参数个数
-        self.size = size  # 有多少微粒
+        self.size = size  # 有多少鱼
         # 最小位移
         if type(x_min) != list:
             self.x_min = [x_min] * self.param_len
@@ -144,7 +147,7 @@ class AFSA:
         self.best_all_score = np.max(self.score)  # 全局最优分数
         self.best_all_x = self.x[np.argmax(self.score)]  # 全局最优位置
 
-    def solve(self, epoch=5):
+    def solve(self, epoch=50, verbose=False):
         for _ in range(epoch):  # 一共迭代_次
             for i in range(self.size):  # 对于第i条鱼
                 # 检测周围有没有鱼
@@ -161,8 +164,8 @@ class AFSA:
                     # 聚群行为
                     centre = np.mean(fishes, 0)
                     if self.func(*centre) / fish_num > self.delta * self.score[i]:
-                        self.x[i] += (centre - self.x[i]) / np.sum(
-                            np.square(centre - self.x[i])) * self.step * np.random.rand()
+                        self.x[i] += (centre - self.x[i]) / (np.sum(
+                            np.square(centre - self.x[i])) + 10e-8) * self.step * np.random.rand()
                         self.x[i] = np.clip(self.x[i], self.x_min, self.x_max)
                         self.score[i] = self.func(*self.x[i])
                         # 更新局部最优值、局部最优位置
@@ -173,8 +176,8 @@ class AFSA:
                     # 追尾行为
                     best_index = fish_idx[np.argmax(self.score[fish_idx])]
                     if self.score[best_index] / fish_num > self.delta * self.score[i]:
-                        self.x[i] += (self.score[best_index] - self.x[i]) / np.sum(
-                            np.square(self.score[best_index] - self.x[i])) * self.step * np.random.rand()
+                        self.x[i] += (self.x[best_index] - self.x[i]) / np.sum(
+                            np.square(self.x[best_index] - self.x[i])) * self.step * np.random.rand()
                         self.x[i] = np.clip(self.x[i], self.x_min, self.x_max)
                         self.score[i] = self.func(*self.x[i])
                         # 更新局部最优值、局部最优位置
@@ -201,7 +204,10 @@ class AFSA:
                 if self.score[i] > self.best_all_score:
                     self.best_all_score = self.score[i]
                     self.best_all_x = self.x[i].copy()
-            print('已完成第%i次寻找,最优参数值为' % (_ + 1), self.best_all_x, '目前最优适合度为%.4f' % self.best_all_score)
+            if verbose:
+                # print('已完成第%i次寻找,最优参数值为' % (_ + 1), self.best_all_x, '目前最优适合度为%.4f' % self.best_all_score)
+                print('Number of iterations: %i. The optimal parameters:' % (_ + 1), self.best_all_x,
+                      'Best fitness: %.4f' % self.best_all_score)
         return self.best_all_x
 
 
@@ -242,7 +248,7 @@ class FA:
         self.best_all_score = np.max(self.score)  # 全局最优分数
         self.best_all_x = self.x[np.argmax(self.score)]  # 全局最优位置
 
-    def solve(self, epoch=5):
+    def solve(self, epoch=50, verbose=False):
         for _ in range(epoch):  # 一共迭代_次
             # 计算距离
             distance = np.zeros([self.size, self.size])
@@ -265,7 +271,8 @@ class FA:
                 for j in range(self.size):
                     if j == i:
                         lightness[j] = -np.inf
-                    lightness[j] = self.score[j] * np.exp(-self.gamma * distance[i][j])
+                    else:
+                        lightness[j] = self.score[j] * np.exp(-self.gamma * distance[i][j])
                 idx = np.argmax(lightness)
                 # 更新萤火虫的位置
                 self.x[i] += self.beta * np.exp(-self.gamma * np.square(distance[i][idx])) * (
@@ -276,5 +283,8 @@ class FA:
                 if self.score[i] > self.best_all_score:
                     self.best_all_score = self.score[i]
                     self.best_all_x = self.x[i].copy()
-            print('已完成第%i次寻找,最优参数值为' % (_ + 1), self.best_all_x, '目前最优适合度为%.4f' % self.best_all_score)
+            if verbose:
+                # print('已完成第%i次寻找,最优参数值为' % (_ + 1), self.best_all_x, '目前最优适合度为%.4f' % self.best_all_score)
+                print('Number of iterations: %i. The optimal parameters:' % (_ + 1), self.best_all_x,
+                      'Best fitness: %.4f' % self.best_all_score)
         return self.best_all_x
