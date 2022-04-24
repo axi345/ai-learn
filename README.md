@@ -39,4 +39,4 @@ pip install ailearn --upgrade
 
 https://pypi.org/project/ailearn/
 
-https://github.com/axi345/ailearn/
+https://github.com/zhaoxy-ml/ailearn/
